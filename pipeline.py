@@ -25,6 +25,12 @@ import urllib.parse
 import urllib.request
 
 SUPABASE_URL = os.environ["SUPABASE_URL"].rstrip("/")
+# SECURITY: use the service_role key here (server-side only — this script is not
+# shipped to clients). It bypasses RLS so writes work without an anon-write
+# policy. The initial demo used the anon key with a temporary anon-insert policy
+# for convenience; that policy was revoked afterward (see schema.sql /
+# migration puzzle37_harden_rls) since anon-insert on a shared project lets
+# anyone with the public anon key write. Never commit this key.
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 OPENROUTER_KEY = os.environ["OPENROUTER_API_KEY"]
 

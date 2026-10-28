@@ -54,9 +54,17 @@ independently-verified artifacts, and the third is purely an external-service
 availability limit at this moment, not a code defect. Point `IMAGE_ENDPOINT` at
 a paid/real generator (incl. Vertex AI) for guaranteed throughput.
 
-## Schema
+## Schema & security
 
-`schema.sql` is the exact DDL (table + RLS + public Storage bucket + bucket
-RLS), applied to the live project via Supabase migration. The demo writes
-with the project's publishable/anon key, which the RLS policies scope to the
-`puzzle37_*` objects only.
+`schema.sql` is the DDL (table + RLS + public Storage bucket), applied to the
+live project via Supabase migration.
+
+**Security note (hardened after an automated review flagged it):** the initial
+demo run wrote with the public anon key via a temporary anon-insert policy. On
+a *shared* project that means anyone holding the public anon key could write
+rows/upload files — so after the demo artifacts were captured, the anon-write
+policies were revoked (migration `puzzle37_harden_rls`), leaving only public
+READ (intended, for serving the images), and the bucket was constrained to
+`image/jpeg`/`image/png` with a 5 MB cap. For any non-throwaway use the
+pipeline should authenticate with the **service_role** key (server-side only,
+bypasses RLS) — reflected in `.env.example` and `pipeline.py`.
